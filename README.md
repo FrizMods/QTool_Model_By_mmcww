@@ -35,5 +35,15 @@
 		Backspace 清空重置  
 		选中顶端产物 delete 删除整棵生产树
   
+  效果图
+  -------
+  >>所有建筑10/min
+  ![image](https://github.com/dsp-mod/QTool_Model_By_mmcww/blob/main/images/testv3_1.png)
+  ![image](https://github.com/dsp-mod/QTool_Model_By_mmcww/blob/main/images/testv3_2.png)
+  ![image](https://github.com/dsp-mod/QTool_Model_By_mmcww/blob/main/images/testv3_4.png)
+  ![image](https://github.com/dsp-mod/QTool_Model_By_mmcww/blob/main/images/testv3_5.png)
+  ![image](https://github.com/dsp-mod/QTool_Model_By_mmcww/blob/main/images/testv3_6.png)
+  
+  
   
   
