@@ -1,13 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Qtools
 {
     public class TreeManage
     {
 
+        public enum RunTask
+        {
+            TaskNone,
+            TaskSort,
+            TaskStatistc
+        };
+        public Thread calThread;
+        public AutoResetEvent sortEvent=new AutoResetEvent(false);
+        public Thread sortThread;
+        public AutoResetEvent calEvent = new AutoResetEvent(false);
+
+
         public List<RootItem> rootItems = new List<RootItem>();
         private HashSet<int> outSet = new HashSet<int>();
+        private HashSet<int> inSet = new HashSet<int>();
+
+        public TreeManage()
+        {
+            InitThread();
+        }
+
+        private void InitThread()
+        {
+            sortThread = new Thread(new ThreadStart(RunSort));
+            sortThread.IsBackground = true;
+            calThread = new Thread(new ThreadStart(RunCal));
+            calThread.IsBackground = true;
+            sortThread.Start();
+            calThread.Start();
+        }
+
 
         //===============================================计算结果统计
         public Dictionary<int, float> ansNeedInput = new Dictionary<int, float>();
@@ -33,15 +63,22 @@ namespace Qtools
         /// <param name="top"></param>
         public void AddTopItem(RootItem rootNode)
         {
-            rootNode.SetInDebar(outSet).UpdateTree();
+            rootNode.SetInAndOut(inSet,outSet).UpdateTree(0);
             ansOutCount += rootNode.outItems.Count;
-            foreach (ItemRoad outNode in rootNode.outItems.Keys) {
-                if (!outSet.Contains(outNode.TheItem.ID)) {
-                    outSet.Add(outNode.TheItem.ID);
+            foreach (int itemId in rootNode.ansProductTimes.Keys) {
+                if (rootNode.ansProductTimes[itemId] < 0) {
+                    if (!inSet.Contains(itemId)) {
+                        inSet.Add(itemId);
+                    }
+                }
+                if (rootNode.ansProductTimes[itemId] > 0) {
+                    if (!outSet.Contains(itemId)) {
+                        outSet.Add(itemId);
+                    }
                 }
             }
             foreach (RootItem rootItem in rootItems) {
-                rootItem.SetInDebar(outSet).UpdateTree();
+                rootItem.SetInAndOut(inSet, outSet).UpdateTree(0);
             }
             //更新根节点表
             rootItems.Add(rootNode);
@@ -52,6 +89,46 @@ namespace Qtools
             //    DeleteDestinationRecipe(topNode, factory.theRecipe);
             //}
         }
+        /// <summary>
+        /// 删除root产物 删除原料表 
+        /// </summary>
+        /// <param name="top"></param>
+        public void DeleteTopItem(TreeNode top)
+        {
+            if (top.layer == 0) {
+                RootItem topRoad = (RootItem)top.myRootNode;
+                ansOutCount -= topRoad.outItems.Count;
+                rootItems.Remove(topRoad);
+                foreach (int outItemId in topRoad.ansProductTimes.Keys) {
+                    if (topRoad.ansProductTimes[outItemId] > 0 && !IsOutHave(outItemId)) {
+                        outSet.Remove(outItemId);
+                    }
+                    if (topRoad.ansProductTimes[outItemId] < 0 && !IsInHave(outItemId)) {
+                        inSet.Remove(outItemId);
+                    }
+                }
+            }
+        }
+
+        public void ClearTopItem()
+        {
+            calThread.Abort();
+            sortThread.Abort();
+            rootItems.Clear();
+            outSet.Clear();
+            ansNeedInput.Clear();
+            ansFactory.Clear();
+            ansNeedInput.Clear();
+            ansPicker = 0;
+            ansPower[0] = 0;
+            ansPower[1] = 0;
+            ansPower[2] = 0;
+            ansOutCount = 0;
+            InitThread();
+        }
+
+
+
 
         /// <summary>
         /// 将配方设置为模块
@@ -131,7 +208,7 @@ namespace Qtools
                         theNode.recipeIndex = -1;
                     }
                     //树结构改变 高度 宽度 ...
-                    ((RootItem)theNode.myRootNode).UpdateTree();
+                    ((RootItem)theNode.myRootNode).UpdateTree(0);
                     return theNode;
                 }
             }
@@ -139,36 +216,25 @@ namespace Qtools
         }
 
 
-        /// <summary>
-        /// 删除root产物 删除原料表 
-        /// </summary>
-        /// <param name="top"></param>
-        public void DeleteTopItem(TreeNode top)
+        
+
+
+
+        private void RunSort()
         {
-            if (top.layer==0) {
-                RootItem topRoad = (RootItem)top.myRootNode;
-                ansOutCount -= topRoad.outItems.Count;
-                rootItems.Remove(topRoad);
-                if (!IsOutHave(topRoad.TheItem.ID)) {
-                    outSet.Remove(topRoad.TheItem.ID);
-                }
+            while (true) {
+                sortEvent.WaitOne();
+                rootItems = SortLevel(true);
+            }
+        }
+        private void RunCal()
+        {
+            while (true) {
+                calEvent.WaitOne();
+                StatisticsDownResult();
             }
         }
 
-
-        public void ClearTopItem()
-        {
-            rootItems.Clear();
-            outSet.Clear();
-            ansNeedInput.Clear();
-            ansFactory.Clear();
-            ansNeedInput.Clear();
-            ansPicker = 0;
-            ansPower[0] = 0;
-            ansPower[1] = 0;
-            ansPower[2] = 0;
-            ansOutCount = 0;
-        }
 
         /// <summary>
         /// 将产物树按输出等级高到低排序
@@ -186,7 +252,9 @@ namespace Qtools
             //结果列表
             List<RootItem> theLevel = new List<RootItem>();
             //选择排序
+            int ix = 0;
             while (theLevel.Count < rootItems.Count) {
+                //QTools.QTool.DebugLog($"ix:{ix++}/cout:{theLevel.Count}");
                 // 对于一个根结点
                 foreach (RootItem topNode in rootItems) {
                     //（过滤已经排序好的根节点）
@@ -194,15 +262,24 @@ namespace Qtools
                         continue;
                     bool isHave = false;
                     //的所有产物
-                    foreach (ItemRoad outProduct in topNode.outItems.Keys) {
+                    foreach (int productId in topNode.ansProductTimes.Keys) {
+                        //这是一个需求素材
+                        if (topNode.ansProductTimes[productId] <= 0) {
+                            continue;
+                        }
+
                         //===剩下根节点遍历
                         foreach (RootItem topNode1 in rootItems) {
                             //（过滤已经排序好的根节点和自己）
-                            if (checkArray[topNode1]|| topNode1 == topNode)
+                            if (checkArray[topNode1] || topNode1 == topNode)
                                 continue;
-                            foreach (ItemRoad inProduct in topNode1.inItems) {
+                            foreach (int productId1 in topNode1.ansProductTimes.Keys) {
+                                //这是一个供给素材
+                                if (topNode.ansProductTimes[productId] >= 0) {
+                                    continue;
+                                }
                                 //如果不在剩下的根节点原料列表中
-                                if (outProduct.TheItem.ID == inProduct.TheItem.ID) {
+                                if (productId == productId1) {
                                     isHave = true;
                                     break;
                                 }
@@ -326,6 +403,7 @@ namespace Qtools
         {
             //==================初始化统计表
             ansFactory.Clear();
+            ansNeedInput.Clear();
             ansPicker = 0;
             ansPower[0] = 0;
             ansPower[1] = 0;
@@ -394,17 +472,19 @@ namespace Qtools
                     topOut.needNumPerMin *= topRoad.outItems[topOut][1] / 100f;
                     //写入用户需求
                     topOut.needNumPerMin += topRoad.outItems[topOut][0];
-                    //统计输入提供部分
-                    if (!ansNeedInput.ContainsKey(topOut.TheItem.ID)) {
-                        ansNeedInput[topOut.TheItem.ID] = -topOut.needNumPerMin;
-                    }
-                    else {
-                        ansNeedInput[topOut.TheItem.ID] -= topOut.needNumPerMin;
-                    }
                 }
                 //计算输入原料需求
                 topRoad.StatisticsDownResult();
                 //统计输入
+                foreach (ItemRoad outputRoad in topRoad.outItems.Keys) {
+                    if (!ansNeedInput.ContainsKey(outputRoad.TheItem.ID)) {
+                        ansNeedInput[outputRoad.TheItem.ID] = -outputRoad.needNumPerMin;
+                    }
+                    else {
+                        ansNeedInput[outputRoad.TheItem.ID] -= outputRoad.needNumPerMin;
+                    }
+                }
+
                 foreach (ItemRoad inputRoad in topRoad.inItems) {
                     if (!ansNeedInput.ContainsKey(inputRoad.TheItem.ID)) {
                         ansNeedInput[inputRoad.TheItem.ID] = inputRoad.needNumPerMin;

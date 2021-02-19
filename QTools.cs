@@ -177,7 +177,7 @@ namespace QTools
                 }
                 //===================================总线化排序
                 if (GUI.Button(myLayout.MoveNextRow(sizeScaleLabel).MoveNext(), "总线化排序", qButtonStyle)) {
-                    treeManage.SortLevel(true);
+                    treeManage.sortEvent.Set();
                 }
                 if (uITree.isClickAnyNode) {
                     uITree.isClickAnyNode = false;
@@ -203,7 +203,7 @@ namespace QTools
 
                 //==========================计算快捷键
                 if (Input.GetKeyUp(KeyCode.Return) && !keyLock) {
-                    treeManage.StatisticsDownResult();
+                    treeManage.calEvent.Set();
                 }
                 switch (selectId) {
                     //======================================绘制全部有配方物品
@@ -342,7 +342,8 @@ namespace QTools
                                     int.TryParse(GUI.TextField(myLayout.MoveNext(0.3f), yi.ToString(), 6, qButtonStyle), out yi);
                                     theTop.outItems[theRoad][0] = yi;
                                     if (GUI.Button(myLayout.MoveNext(0.3f), "确认", qButtonStyle)) {
-                                        treeManage.StatisticsDownResult();
+                                        treeManage.calEvent.Set();
+                                        //treeManage.StatisticsDownResult();
                                     }
 
                                     if (theTop.ansPower != null) {
@@ -402,7 +403,8 @@ namespace QTools
                             else if (inoutSelect == 1) {
                                 //========输出表
                                 if (GUI.Button(myLayout.MoveNextRow(sizeScaleLabel).MoveNext(), "计算", qButtonStyle)) {
-                                    treeManage.StatisticsDownResult();
+                                    treeManage.calEvent.Set();
+                                        //treeManage.StatisticsDownResult();
                                 }
                                 GUI.Label(myLayout.MoveNextRow(sizeScaleLabel).MoveNext(), "产出/min | 需求/min | 比例%", qButtonStyle);
 

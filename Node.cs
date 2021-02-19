@@ -79,7 +79,7 @@ namespace Qtools
             return 0;
         }
 
-        public virtual void UpdateTree()
+        public virtual void UpdateTree(int parentItemId)
         { 
         
         }
@@ -230,10 +230,19 @@ namespace Qtools
         /// 将会生成新的树
         /// </summary>
         /// <param name="offerInputRoads">已经提供的原材料</param>
-        public override void UpdateTree()
+        public override void UpdateTree(int parentItemId)
         {
             treeWidth = 0;
             treeHight = 0;
+            float times = 0;
+            for (int i = 0; i < theRecipe.Results.Length; i++) {
+                if (theRecipe.Results[i] == parentItemId) {
+                    times = ((ItemRoad)outputFindChart[parentItemId]).productTimes / theRecipe.ResultCounts[i];
+                }
+            }
+            if (theRecipe.Type == ERecipeType.Fractionate) {
+                times /= 100f;
+            }
 
             //遍历原材料
             for (int i = 0; i < theRecipe.Items.Length; i++) {
@@ -243,8 +252,10 @@ namespace Qtools
                     inputFindChart[itemId].outputNodes.Add(this);
                     inputFindChart[itemId].layer = layer + 1;
                     inputFindChart[itemId].myRootNode = myRootNode;
+                    //初始化倍率
+                    ((ItemRoad)inputFindChart[itemId]).productTimes = -times * theRecipe.ItemCounts[i];
                 }
-                (inputFindChart[itemId] as ItemRoad).UpdateTree();
+                (inputFindChart[itemId] as ItemRoad).UpdateTree(factoryId);
                 treeWidth += inputFindChart[itemId].treeWidth;
                 treeHight = treeHight > inputFindChart[itemId].treeHight ? treeHight : inputFindChart[itemId].treeHight;
             }
@@ -265,6 +276,8 @@ namespace Qtools
                     outputFindChart[itemId].layer = layer - 1;
                     outputFindChart[itemId].treeWidth = treeWidth;
                     outputFindChart[itemId].treeHight = treeHight + 1;
+                    //初始化倍率
+                    ((ItemRoad)outputFindChart[itemId]).productTimes = times * theRecipe.ResultCounts[i];
                 }
                 if (outputFindChart[itemId].outputNodes.Count == 0) {
                     ((ItemRoad)outputFindChart[itemId]).UpdateMultiItem();
@@ -329,7 +342,14 @@ namespace Qtools
     /// </summary>
     public class ItemRoad : TreeNode
     {
-
+        /// <summary>
+        /// 生产速率，规定>0为产出 <0为需求
+        /// </summary>
+        public float product = 0;
+        /// <summary>
+        /// 生产速率的倍率（顶端产出为60个/min时的生产量），规定>0为产出 <0为需求
+        /// </summary>
+        public float productTimes = 0;
         /// <summary>
         /// 传输带上的货物
         /// </summary>
@@ -399,7 +419,7 @@ namespace Qtools
         {
             MultiUpdateCallback?.Invoke(this);
         }
-        public override void UpdateTree()
+        public override void UpdateTree(int parentItemId)
         {
             //初始化
             treeHight = 1;
@@ -411,7 +431,7 @@ namespace Qtools
                 return;
             }
             // 模块提供
-            if (outputNodes.Count != 0 && ((RootItem)myRootNode).inDebar.Contains(theItem.ID)) {
+            if (outputNodes.Count != 0 && ((RootItem)myRootNode).outSet.Contains(theItem.ID)) {
                 inputNodes.Clear();
                 recipeIndex = -1;
                 LeafUpdateCallback?.Invoke(this);
@@ -437,7 +457,7 @@ namespace Qtools
             else {
                 inputNodes.Add(inputFactory);
             }
-            inputFactory.UpdateTree();
+            inputFactory.UpdateTree(theItem.ID);
             treeHight = inputFactory.treeHight + 1;
             treeWidth = inputFactory.treeWidth;
         }

@@ -12,9 +12,13 @@ namespace Qtools
         //输入表
         public List<ItemRoad> inItems = new List<ItemRoad>();
         //配方排除表 用于树更新
-        public HashSet<int> inDebar;
+        public HashSet<int> inSet,outSet;
+
+        public int level = 0;
 
         //===========统计
+        public Dictionary<int, float> ansProductTimes;
+
         public Dictionary<int, float> ansNeedInput;
         /// <summary>
         /// [id] = 数量
@@ -47,7 +51,7 @@ namespace Qtools
                 ansPower[2] += (long)((factorItem.prefabDesc.idleEnergyPerTick)
                                           * factory.Num * 60L);
                 //=============================统计爪子数量
-                ansPicker += inputNodes.Count + outputNodes.Count;
+                ansPicker += (factory.inputNodes.Count + factory.outputNodes.Count)* factory.Num;
                 //=============================统计工厂数量
                 if (!ansFactory.ContainsKey(factory.FactoryId)) {
                     ansFactory[factory.FactoryId] = factory.Num;
@@ -93,14 +97,15 @@ namespace Qtools
             return null;
         }
 
-        public RootItem SetInDebar(HashSet<int> inDebar)
+        public RootItem SetInAndOut(HashSet<int> inSet, HashSet<int> outSet)
         {
-            this.inDebar = inDebar;
+            this.inSet = inSet;
+            this.outSet = outSet;
             return this;
         }
 
 
-        public override void UpdateTree()
+        public override void UpdateTree(int parentItemId)
         {
             LeafUpdateCallback = (x) =>
             {
@@ -111,14 +116,15 @@ namespace Qtools
                 //不存在x和this相同的情况
                 outItems[x] = new int[2] { 0, 100 };
             };
-
+            ansProductTimes = new Dictionary<int, float>();
             inItems.Clear();
             Dictionary<ItemRoad, int[]> temp = new Dictionary<ItemRoad, int[]>(outItems);
             outItems.Clear();
+            productTimes = 1f;
             myRootNode = this;
             outItems[this] = new int[2] { 0, 100 };
             layer = 0;
-            base.UpdateTree();
+            base.UpdateTree(theItem.ID);
             //===========还原用户设置的数据
             foreach (ItemRoad itemRoad in outItems.Keys) {
                 if (temp.ContainsKey(itemRoad)) {
@@ -126,6 +132,25 @@ namespace Qtools
                     outItems[itemRoad][1] = temp[itemRoad][1];
                 }
             }
+            //===========综合输出和输入倍率,建立综合表
+            foreach (ItemRoad inputRoad in inItems) {
+                if (!ansProductTimes.ContainsKey(inputRoad.TheItem.ID)) {
+                    ansProductTimes[inputRoad.TheItem.ID] = -inputRoad.productTimes;
+                }
+                else {
+                    ansProductTimes[inputRoad.TheItem.ID] -= inputRoad.productTimes;
+                }
+            }
+            foreach (ItemRoad outputRoad in outItems.Keys) {
+                if (!ansProductTimes.ContainsKey(outputRoad.TheItem.ID)) {
+                    ansProductTimes[outputRoad.TheItem.ID] = outputRoad.productTimes;
+                }
+                else {
+                    ansProductTimes[outputRoad.TheItem.ID] += outputRoad.productTimes;
+                }
+            }
+
+
         }
 
         public int CompareTo(RootItem other)
