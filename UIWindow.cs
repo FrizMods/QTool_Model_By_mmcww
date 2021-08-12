@@ -1,72 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+using  System ;
+using  System . Collections . Generic ;
+using  System . Linq ;
+using  System . Text ;
+using  UnityEngine ;
 
-namespace Qtools
+namespace  Qtools
 {
-    public class UITree
+    public  class  UITree
     {
-        //============================================================图形格式参数
-        /// <summary>
-        /// 格子间距 参数 2
-        /// </summary>
-        protected float line = 2;
-        /// <summary>
-        /// 格子大小
-        /// </summary>
-        protected float side = 40;
-        /// <summary>
-        /// UI每行显示最大格子数 参数 40 
-        /// </summary>
-        protected float max = 40;
-        /// <summary>
-        /// 边界距离 参数 10
-        /// </summary>
-        protected float leftAndRight = 10;
-        /// <summary>
-        /// 顶边距 参数 25
-        /// </summary>
-        private float topOfMap = 25;
-        //===========================窗口参数
-        private Rect windowRect;
-        public Rect maxWindowRect;
-        public Vector2 windowPosition = new Vector2(0, 0);
-        private bool mouseLock = false;
-        private Vector3 lastMousePosition;
+        // =============================================== ============Graphic format parameters
+        /// < summary >
+        /// Grid spacing parameter 2
+        /// </ summary >
+        protected  float  line  =  2 ;
+        /// < summary >
+        /// Grid size
+        /// </ summary >
+        protected  float  side  =  40 ;
+        /// < summary >
+        /// UI displays the maximum number of grids per line parameter 40
+        /// </ summary >
+        protected  float  max  =  40 ;
+        /// < summary >
+        /// Boundary distance parameter 10
+        /// </ summary >
+        protected  float  leftAndRight  =  10 ;
+        /// < summary >
+        /// Top margin parameter 25
+        /// </ summary >
+        private  float  topOfMap  =  25 ;
+        // ========================== Window parameters
+        private  Rect  windowRect ;
+        public  Rect  maxWindowRect ;
+        public  Vector2  windowPosition  =  new  Vector2 ( 0 , 0 );
+        private  bool  mouseLock  =  false ;
+        private  Vector3  lastMousePosition ;
 
-        public Material lineMaterial;
-        /// <summary>
-        /// 辅助数组 索引为layer标号
-        /// </summary>
-        private float[] posRight;
+        public  Material  lineMaterial ;
+        /// < summary >
+        ///The auxiliary array index is the layer label
+        /// </ summary >
+        private  float [] posRight ;
 
-        //===============================UI 事件
-        public TreeNode nowActiveNode;
-        public bool isClickAnyNode = false;
+        // =============================== UI events
+        public  TreeNode  nowActiveNode ;
+        public  bool  isClickAnyNode  =  false ;
 
-        public float[] PosRight { get => posRight; set => posRight = value; }
-        public Rect WindowRect { get => windowRect; set {
-                windowRect = value;
-                if (maxWindowRect == null) {
-                    maxWindowRect = new Rect(windowRect);
+        public  float [] PosRight { get  =>  posRight ; set  =>  posRight  =  value ;}
+        public  Rect  WindowRect { get  =>  windowRect ; set {
+                windowRect  =  value ;
+                if ( maxWindowRect  ==  null ) {
+                    maxWindowRect  =  new  Rect ( windowRect );
                 }
                 else {
-                    maxWindowRect.x = windowRect.x;
-                    maxWindowRect.y = windowRect.y
-; }
+                    maxWindowRect . x  =  windowRect . x ;
+                    maxWindowRect . y  =  windowRect . y
+;}
 
             }
         }
 
-        Action<TreeNode> uIPressEvent;
+        Action < TreeNode > uIPressEvent ;
 
-        public UITree()
+        public  UITree ()
         {
-            uIPressEvent = (x) => {
-                nowActiveNode = x;
-                isClickAnyNode = true;
+            uIPressEvent  = ( x ) => {
+                nowActiveNode  =  x ;
+                isClickAnyNode  =  true ;
             };
         }
 
@@ -77,380 +77,380 @@ namespace Qtools
 
 
 
-        /// <summary>
-        /// 绘制一个树
-        /// </summary>
-        /// <param name="theNode">当前绘制的节点</param>
-        /// <param name="minPosX">树最左叶节点最小横坐标位置</param>
-        private void DrawTree(TreeNode theNode, float minPosX)
+        /// < summary >
+        /// Draw a tree
+        /// </ summary >
+        /// < param  name = " theNode " >Currently drawn node</ param >
+        /// < param  name = " minPosX " >The minimum abscissa position of the leftmost leaf node of the tree</ param >
+        private  void  DrawTree ( TreeNode  theNode , float  minPosX )
         {
-            //后序遍历
-            //当前图标最小横坐标位置
-            float theMin = minPosX > PosRight[theNode.layer] ? minPosX : PosRight[theNode.layer];
-            if (theNode.inputNodes != null && theNode.inputNodes.Count > 0) {
-                //子树
-                //判断相邻子树的相邻结点  
-                if (PosRight[theNode.layer] > PosRight[theNode.layer + 1] + line) {
-                    //近似平衡结点结构
-                    float temp = (theNode.treeWidth - 1) * 0.5f * (side + line);
-                    //估计
-                    //if (theNode.treeWidth != theNode.inputNodes.Count) {
-                    //    temp += temp*(theNode.treeWidth - theNode.inputNodes.Count) * 0.02f;
-                    //}
-                    //矫正子树的位置
-                    minPosX = theMin - temp;//posRight[theNode.layer] - temp;
+            // Post-order traversal
+            // The minimum abscissa position of the current icon
+            float  theMin  =  minPosX  >  PosRight [ theNode . layer ] ?  minPosX  :  PosRight [ theNode . layer ];
+            if ( theNode . inputNodes  !=  null  &&  theNode . inputNodes . Count  >  0 ) {
+                // Subtree
+                // Determine the adjacent nodes of adjacent subtrees  
+                if ( PosRight [ theNode . layer ] >  PosRight [ theNode . layer  +  1 ] +  line ) {
+                    // Approximately balanced node structure
+                    a float  TEMP  = ( theNode . treeWidth  -  . 1 ) *  0 . . 5 F  * ( Side  +  Line );
+                    // Estimate
+                    // if (theNode.treeWidth != theNode.inputNodes.Count) {
+                    //     temp += temp*(theNode.treeWidth-theNode.inputNodes.Count) * 0.02f;
+                    // }
+                    // Correct the position of the subtree
+                    minPosX  =  theMin  -  temp ; // posRight[theNode.layer]-temp;
                 }
-                //判断副产物-位置矫正
-                if (theNode.inputNodes[0].outputNodes.Count > 1) {//theNode.GetType().Name == "ItemRoad" &&
-                    if (minPosX <= PosRight[theNode.layer]) {
-                        minPosX = minPosX + (theNode.inputNodes[0].outputNodes.Count - 1) * 0.5f * (side + line);
+                // Judgment by-product-position correction
+                if ( theNode . inputNodes [ 0 ]. outputNodes . Count  >  1 ) { // theNode.GetType().Name == "ItemRoad" &&
+                    if ( minPosX  <=  PosRight [ theNode . layer ]) {
+                        minPosX  =  minPosX  + ( theNode . inputNodes [ 0 ]. outputNodes . the Count  -  . 1 ) *  0 . . 5 F  * ( Side  +  Line );
                     }
                 }
-                DrawTree(theNode.inputNodes[0], minPosX);
-                for (int i = 1; i < theNode.inputNodes.Count; i++) {
-                    TreeNode node = theNode.inputNodes[i];
-                    DrawTree(node, PosRight[theNode.layer + 1]);
+                DrawTree ( theNode . InputNodes [ 0 ], minPosX );
+                for ( int  i  =  1 ; i  <  theNode . inputNodes . Count ; i ++ ) {
+                    TreeNode  node  =  theNode . InputNodes [ i ];
+                    DrawTree ( node , PosRight [ theNode . Layer  +  1 ]);
                 }
-                //中间结点
-                float ans = (theNode.inputNodes[theNode.inputNodes.Count - 1].posRect.x + theNode.inputNodes[0].posRect.x) / 2;
-                //考虑副产物
-                if (theNode.inputNodes[0].outputNodes.Count > 1) {//((theNode is ItemRoad)||(theNode is RootItem)) && 
-                    ans -= (theNode.inputNodes[0].outputNodes.Count - 1) * 0.5f * (side + line);
-                    PosRight[theNode.layer] = ans > PosRight[theNode.layer] ? ans : PosRight[theNode.layer];
-                    foreach (TreeNode road in theNode.inputNodes[0].outputNodes) {
-                        //近似 位置矫正
-                        road.posRect.x = PosRight[theNode.layer];
-                        PosRight[theNode.layer] = PosRight[theNode.layer] + side + line;
-                        ConnectLine(theNode.inputNodes[0], road);
+                // Intermediate node
+                float  ans  = ( theNode . inputNodes [ theNode . inputNodes . Count  -  1 ]. posRect . x  +  theNode . inputNodes [ 0 ]. posRect . x ) /  2 ;
+                // Consider by-products
+                if ( theNode . inputNodes [ 0 ]. outputNodes . Count  >  1 ) { // ((theNode is ItemRoad)||(theNode is RootItem)) &&
+                    ANS  - = ( theNode . inputNodes [ 0 ]. outputNodes . the Count  -  . 1 ) *  0 . . 5 F  * ( Side  +  Line );
+                    PosRight [ theNode . Layer ] =  ANS  >  posRight [ theNode . Layer ] ?  ANS  :  posRight [ theNode . Layer ];
+                    foreach ( TreeNode  road  in  theNode . inputNodes [ 0 ]. outputNodes ) {
+                        // Approximate position correction
+                        road . posRect . x  =  PosRight [ theNode . layer ];
+                        PosRight [ theNode . Layer ] =  PosRight [ theNode . Layer ] +  side  +  line ;
+                        ConnectLine ( theNode . InputNodes [ 0 ], road );
                     }
                 }
                 else {
-                    //近似 位置矫正
-                    ans = ans > PosRight[theNode.layer] ? ans : PosRight[theNode.layer];
-                    theNode.posRect.x = ans;
-                    PosRight[theNode.layer] = theNode.posRect.x + side + line;
+                    // Approximate position correction
+                    ans  =  ans  >  PosRight [ theNode . layer ] ?  ans  :  PosRight [ theNode . layer ];
+                    theNode . posRect . x  =  ans ;
+                    PosRight [ theNode . Layer ] =  theNode . PosRect . X  +  side  +  line ;
 
                 }
-                if (theNode.outputNodes.Count != 0) {
-                    ConnectLine(theNode, theNode.outputNodes[0]);
+                if ( theNode . outputNodes . Count  !=  0 ) {
+                    ConnectLine ( theNode , theNode . OutputNodes [ 0 ]);
                 }
 
             }
             else {
-                //叶结点位置由父节点允许的最小横坐标和当前层允许的最小横坐标决定
-                //判断副产物
-                theNode.posRect.x = theMin;
-                PosRight[theNode.layer] = theNode.posRect.x + side + line;
-                //可能根节点就是叶节点
-                if (theNode.outputNodes.Count > 0) {
-                    ConnectLine(theNode, theNode.outputNodes[0]);
+                //The position of the leaf node is determined by the minimum horizontal coordinate allowed by the parent node and the minimum horizontal coordinate allowed by the current layer
+                // Judging by-products
+                theNode . posRect . x  =  theMin ;
+                PosRight [ theNode . Layer ] =  theNode . PosRect . X  +  side  +  line ;
+                // Maybe the root node is the leaf node
+                if ( theNode . outputNodes . Count  >  0 ) {
+                    ConnectLine ( theNode , theNode . OutputNodes [ 0 ]);
                 }
 
             }
-            //设置位置
-            //绘制UI
-            //绘制多产物
-            if (theNode.inputNodes.Count > 0 && theNode.inputNodes[0].outputNodes.Count > 1) {//&& theNode.GetType().Name == "ItemRoad" 
-                foreach (TreeNode road in theNode.inputNodes[0].outputNodes) {
-                    //近似 位置矫正
+            // Set location
+            // Draw the UI
+            // Draw multiple products
+            if ( theNode . inputNodes . Count  >  0  &&  theNode . inputNodes [ 0 ]. outputNodes . Count  >  1 ) { // && theNode.GetType().Name == "ItemRoad"
+                foreach ( TreeNode  road  in  theNode . inputNodes [ 0 ]. outputNodes ) {
+                    // Approximate position correction
 
-                    road.posRect.y = theNode.layer * 2 * (side + line) + topOfMap;
-                    road.posRect.height = side;
-                    road.posRect.width = side;
-                    if (road.UIDraw()) {
-                        isClickAnyNode = true;
-                        nowActiveNode = road;
+                    road . posRect . y  =  theNode . layer  *  2  * ( side  +  line ) +  topOfMap ;
+                    road . posRect . height  =  side ;
+                    road . posRect . width  =  side ;
+                    if ( road . UIDraw ()) {
+                        isClickAnyNode  =  true ;
+                        nowActiveNode  =  road ;
                     }
 
                 }
             }
             else {
-                theNode.posRect.y = theNode.layer * 2 * (side + line) + topOfMap;
-                theNode.posRect.height = side;
-                theNode.posRect.width = side;
-                if (theNode.UIDraw()) {
-                    isClickAnyNode = true;
-                    nowActiveNode = theNode;
+                theNode . posRect . y  =  theNode . layer  *  2  * ( side  +  line ) +  topOfMap ;
+                theNode . posRect . height  =  side ;
+                theNode . posRect . width  =  side ;
+                if ( theNode . UIDrawUIDraw ()) {
+                    isClickAnyNode  =  true ;
+                    nowActiveNode  =  theNode ;
                 }
             }
-            //更新辅助数组
-            //posRight[theNode.layer] = theNode.posRect.x + side + line;
+            // Update the auxiliary array
+            // posRight[theNode.layer] = theNode.posRect.x + side + line;
         }
 
 
 
-        public void DrawAllTrees(TreeManage treeManage)
+        public  void  DrawAllTrees ( TreeManage  treeManage )
         {
-            if (treeManage.rootItems.Count == 0) {
-                return;
+            if ( treeManage . rootItems . Count  ==  0 ) {
+                return ;
             }
-            PosRight = new float[treeManage.rootItems.Max<RootItem>().treeHight];
-            for (int i = 0; i < PosRight.Length; i++) {
-                PosRight[i] = leftAndRight + windowRect.x;
+            PosRight  =  new  float [ treeManage . RootItems . Max < RootItem >(). treeHight ];
+            for ( int  i  =  0 ; i  <  PosRight . Length ; i ++ ) {
+                PosRight [ i ] =  leftAndRight  +  windowRect . X ;
             }
-            windowPosition = GUI.BeginScrollView(windowRect, windowPosition, maxWindowRect);
-            foreach (TreeNode node in treeManage.rootItems) {
-                DrawTree(node, PosRight[node.layer]);
+            windowPosition  =  GUI . BeginScrollView ( windowRect , windowPosition , maxWindowRect );
+            foreach ( TreeNode  node  in  treeManage . rootItems ) {
+                DrawTree ( node , PosRight [ node . Layer ]);
             }
-            GUI.EndScrollView();
-            if (nowActiveNode != null) {
-                DrawBorder(nowActiveNode, Color.red);
-                //==================根节点改配方特殊操作
-                if (ItemRoad.isNeedChangeRecipe) {
-                    ItemRoad.isNeedChangeRecipe = false;
-                    //treeManage.ChangeRecipe(nowActiveNode);
-                    nowActiveNode = treeManage.ChangeRecipe(nowActiveNode);
-                    //isClickAnyNode = false;
+            GUI . EndScrollView ();
+            if ( nowActiveNode  !=  null ) {
+                DrawBorder ( nowActiveNode , Color . Red );
+                // =================== Root node change formula special operation
+                if ( ItemRoad . isNeedChangeRecipe ) {
+                    ItemRoad . IsNeedChangeRecipe  =  false ;
+                    // treeManage.ChangeRecipe(nowActiveNode);
+                    nowActiveNode  =  treeManage . ChangeRecipe ( nowActiveNode );
+                    // isClickAnyNode = false;
                 }
-                if (TreeNode.isNeedToModule) {
-                    TreeNode.isNeedToModule = false;
-                    treeManage.ToModule(nowActiveNode);
-                    nowActiveNode = null;
-                    isClickAnyNode = false;
-                }
-            }
-            //更新最大画布尺寸
-            maxWindowRect.width = 0;
-            maxWindowRect.height = ((PosRight.Length + 2) * (side + line)) * 2;
-            foreach (int t in posRight) {
-                if (t > maxWindowRect.width) {
-                    maxWindowRect.width = t;
+                if ( TreeNode . isNeedToModule ) {
+                    TreeNode . IsNeedToModule  =  false ;
+                    treeManage . ToModule ( nowActiveNode );
+                    nowActiveNode  =  null ;
+                    isClickAnyNode  =  false ;
                 }
             }
-            maxWindowRect.width += (side + line) * 5 - leftAndRight * 2;
-            maxWindowRect.width = windowRect.width > maxWindowRect.width ? windowRect.width : maxWindowRect.width;
-            maxWindowRect.height = windowRect.height > maxWindowRect.height ? windowRect.height : maxWindowRect.height;
-
-
-
-            if (windowRect.Contains(Input.mousePosition)) {
-
-                //====响应鼠标滚轮,图标放大缩小
-                max -= (int)Input.mouseScrollDelta.y;
-                max = max < 15 ? 15 : max;
-                max = max > 52 ? 52 : max;
-                side = (windowRect.width - 2 * leftAndRight - (max - 1) * line) / max;
-                TreeNode.uiButtonStyle.fontSize = (int)(side / 5);
-                TreeNode.uiLabelStyle.fontSize = (int)(side / 5);
-
-
-                //============右键拖动画布
-                if (Input.GetMouseButtonDown(1) && !mouseLock) {
-                    mouseLock = true;
-                    lastMousePosition = Input.mousePosition;
+            // Update the maximum canvas size
+            maxWindowRect . width  =  0 ;
+            maxWindowRect . height  = (( PosRight . Length  +  2 ) * ( side  +  line )) *  2 ;
+            foreach ( int  t  in  posRight ) {
+                if ( t  >  maxWindowRect . width ) {
+                    maxWindowRect . width  =  t ;
                 }
-                if (Input.GetMouseButtonUp(1) && mouseLock) {
-                    mouseLock = false;
+            }
+            maxWindowRect . width  += ( side  +  line ) *  5  -  leftAndRight  *  2 ;
+            maxWindowRect . width  =  windowRect . width  >  maxWindowRect . width  ?  windowRect . width  :  maxWindowRect . width ;
+            maxWindowRect . height  =  windowRect . height  >  maxWindowRect . height  ?  windowRect . height  :  maxWindowRect . height ;
+
+
+
+            if ( windowRect . Contains ( Input . mousePosition )) {
+
+                // ==== In response to the mouse wheel, the icon zooms in and out
+                max  -= ( int ) Input . mouseScrollDelta . y ;
+                max  =  max  <  15  ?  15  :  max ;
+                max  =  max  >  52  ?  52  :  max ;
+                Side  = ( windowRect . width  -  2  *  leftAndRight  - ( max  -  . 1 ) *  Line ) /  max ;
+                The TreeNode . UiButtonStyle . The fontSize  = ( int ) ( Side  /  . 5 );
+                The TreeNode . UiLabelStyle . The fontSize  = ( int ) ( Side  /  . 5 );
+
+
+                // ============ Right click and drag the canvas
+                if ( Input . GetMouseButtonDown ( 1 ) &&  ! mouseLock ) {
+                    mouseLock  =  true ;
+                    lastMousePosition  =  Input . mousePosition ;
                 }
-                if (Input.GetMouseButton(1) && mouseLock) {
-                    Vector2 offset = Input.mousePosition - lastMousePosition;
-                    offset.x = -offset.x;
-                    windowPosition += offset;
-                    lastMousePosition = Input.mousePosition;
-                    //QTools.QTool.DebugLog($"now{windowPosition.x}/{windowPosition.y}");
+                if ( Input . GetMouseButtonUp ( 1 ) &&  mouseLock ) {
+                    mouseLock  =  false ;
                 }
-                windowPosition.x = windowPosition.x > maxWindowRect.width - windowRect.width ? maxWindowRect.width - windowRect.width : windowPosition.x;
-                windowPosition.x = windowPosition.x < 0 ? 0 : windowPosition.x;
-                windowPosition.y = windowPosition.y > maxWindowRect.height - windowRect.height ? maxWindowRect.height - windowRect.height : windowPosition.y;
-                windowPosition.y = windowPosition.y < 0 ? 0 : windowPosition.y;
+                if ( Input . GetMouseButton ( 1 ) &&  mouseLock ) {
+                    Vector2  offset  =  Input . MousePosition  -  lastMousePosition ;
+                    offset . X  =  - offset . X ;
+                    windowPosition  +=  offset ;
+                    lastMousePosition  =  Input . mousePosition ;
+                    // QTools.QTool.DebugLog($"now{windowPosition.x}/{windowPosition.y}");
+                }
+                windowPosition . x  =  windowPosition . x  >  maxWindowRect . width  -  windowRect . width  ?  maxWindowRect . width  -  windowRect . width  :  windowPosition . x ;
+                windowPosition . x  =  windowPosition . x  <  0  ?  0  :  windowPosition . x ;
+                windowPosition . y  =  windowPosition . y  >  maxWindowRect . height  -  windowRect . height  ?  maxWindowRect . height  -  windowRect . height  :  windowPosition . y ;
+                windowPosition . y  =  windowPosition . y  <  0  ?  0  :  windowPosition . y ;
             }
         }
-        /// <summary>
-        /// theNode1连theNode2 下连上
-        /// 【特性】只进行了x轴的可见性判断
-        /// </summary>
-        /// <param name="parentNode"></param>
-        private void ConnectLine(TreeNode theNode1, TreeNode theNode2)
+        /// < summary >
+        /// theNode1 and theNode2 are connected to the bottom
+        /// [Features] Only the visibility of the x-axis is judged
+        /// </ summary >
+        /// < param  name = " parentNode " ></ param >
+        private  void  ConnectLine ( TreeNode  theNode1 , TreeNode  theNode2 )
         {
-            float x1, x2, y1, y2;
-            //============坐标系变换
-            y1 = theNode1.posRect.y;
-            y2 = theNode2.posRect.y + side;
-            x1 = theNode1.posRect.x + side / 2;
-            x2 = theNode2.posRect.x + side / 2;
+            float  x1 , x2 , y1 , y2 ;
+            // ============ Coordinate system transformation
+            y1  =  theNode1 . posRect . y ;
+            y2  =  theNode2 . posRect . y  +  side ;
+            x1  =  theNode1 . posRect . x  +  side  /  2 ;
+            x2  =  theNode2 . posRect . x  +  side  /  2 ;
 
-            //==============坐标变换
-            x1 = windowRect.x + x1 - windowPosition.x;
-            x2 = windowRect.x + x2 - windowPosition.x;
-            y1 = windowRect.y + y1 - windowPosition.y;
-            y2 = windowRect.y + y2 - windowPosition.y;
-            //==============y轴翻转
-            y1 = windowRect.height - y1;
-            y2 = windowRect.height - y2;
-            //==============可见区域限制
-            x1 = windowRect.x + windowRect.width < x1 ? windowRect.x + windowRect.width : x1;
-            x2 = windowRect.x + windowRect.width < x2 ? windowRect.x + windowRect.width : x2;
-            GL.PushMatrix(); //保存当前Matirx
-            lineMaterial.SetColor("_Color", Color.black);
-            lineMaterial.SetPass(0); //刷新当前材质
-            GL.LoadPixelMatrix();//设置pixelMatrix
-            GL.Begin(GL.LINES);
-            GL.Vertex3(x1, y1, 0);
-            GL.Vertex3(x1, (y1 + y2) / 2, 0);
-            GL.Vertex3(x1, (y1 + y2) / 2, 0);
-            GL.Vertex3(x2, (y1 + y2) / 2, 0);
-            GL.Vertex3(x2, (y1 + y2) / 2, 0);
-            GL.Vertex3(x2, y2, 0);
+            // ============== Coordinate transformation
+            x1  =  windowRect . x  +  x1  -  windowPosition . x ;
+            x2  =  windowRect . x  +  x2  -  windowPosition . x ;
+            y1  =  windowRect . y  +  y1  -  windowPosition . y ;
+            y2  =  windowRect . y  +  y2  -  windowPosition . y ;
+            // ==============y-axis flip
+            y1  =  windowRect . height  -  y1 ;
+            y2  =  windowRect . height  -  y2 ;
+            // ==============Visible area limitation
+            x1  =  windowRect . x  +  windowRect . width  <  x1  ?  windowRect . x  +  windowRect . width  :  x1 ;
+            x2  =  windowRect . x  +  windowRect . width  <  x2  ?  windowRect . x  +  windowRect . width  :  x2 ;
+            GL . PushMatrix (); // Save the current Matirx
+            lineMaterial . SetColor ( " _Color " , Color . black );
+            lineMaterial . SetPass ( 0 ); // Refresh the current material
+            GL . LoadPixelMatrix (); // Set pixelMatrix
+            GL . Begin ( GL . LINES );
+            GL . Vertex3 ( x1 , y1 , 0 );
+            GL . Vertex3 ( x1 , ( y1  +  y2 ) /  2 , 0 );
+            GL . Vertex3 ( x1 , ( y1  +  y2 ) /  2 , 0 );
+            GL . Vertex3 ( x2 , ( y1  +  y2 ) /  2 , 0 );
+            GL . Vertex3 ( x2 , ( y1  +  y2 ) /  2 , 0 );
+            GL . Vertex3 ( x2 , y2 , 0 );
 
-            GL.End();
-            GL.PopMatrix();//读取之前的Matrix
+            GL . End ();
+            GL . PopMatrix (); // Read the previous Matrix
         }
-        /// <summary>
-        /// 【特性】只对右侧进行了可见性判断
-        /// </summary>
-        /// <param name="theNode"></param>
-        /// <param name="color"></param>
-        private void DrawBorder(TreeNode theNode, Color color)
+        /// < summary >
+        /// [Characteristics] Only the visibility judgment is made on the right side
+        /// </ summary >
+        /// < param  name = " theNode " ></ param >
+        /// < param  name = " color " ></ param >
+        private  void  DrawBorder ( TreeNode  theNode , Color  color )
         {
-            Rect theRect = new Rect(theNode.posRect);
-            //=============坐标变换
-            theRect.x -= windowPosition.x;
-            theRect.y -= windowPosition.y;
+            Rect  theRect  =  new  Rect ( theNode . PosRect );
+            // ============= Coordinate transformation
+            theRect . x  -=  windowPosition . x ;
+            theRect . y  -=  windowPosition . y ;
 
-            Vector3 p1, p2, p3, p4;
-            bool flag = true;
-            float theSide = line;
-            p1 = new Vector3(theRect.x - theSide, windowRect.height - (theRect.y - theSide), 0);
-            if (p1.x > windowRect.x + windowRect.width) {
-                return;
+            Vector3  p1 , p2 , p3 , p4 ;
+            bool  flag  =  true ;
+            float  theSide  =  line ;
+            P1  =  new new  Vector3 ( theRect . X  -  theSide , windowRect . height  - ( theRect . Y  -  theSide ), 0 );
+            if ( p1 . x  >  windowRect . x  +  windowRect . width ) {
+                return ;
             }
-            p2 = new Vector3(theRect.xMax + theSide, windowRect.height - (theRect.y - theSide), 0);
-            p3 = new Vector3(theRect.xMax + theSide, windowRect.height - (theRect.yMax + theSide), 0);
-            if (p2.x > windowRect.x + windowRect.width) {
-                flag = false;
-                p2.x = windowRect.width + windowRect.x;
-                p3.x = p2.x;
+            P2  =  new new  Vector3 ( theRect . xMax  +  theSide , windowRect . height  - ( theRect . Y  -  theSide ), 0 );
+            P3  =  new new  Vector3 ( theRect . xMax  +  theSide , windowRect . height  - ( theRect . yMax  +  theSide ), 0 );
+            if ( p2 . x  >  windowRect . x  +  windowRect . width ) {
+                flag  =  false ;
+                p2 . x  =  windowRect . width  +  windowRect . x ;
+                p3 . x  =  p2 . x ;
             }
-            p4 = new Vector3(theRect.x - theSide, windowRect.height - (theRect.yMax + theSide), 0);
-            GL.PushMatrix(); //保存当前Matirx
-            lineMaterial.SetColor("_Color", color);
-            lineMaterial.SetPass(0); //刷新当前材质
-            GL.LoadPixelMatrix();//设置pixelMatrix
-            GL.Begin(GL.LINES);
-            //===1
-            GL.Vertex(p1);
-            GL.Vertex(p2);
-            //===2
-            if (flag) {
-                GL.Vertex(p2);
-                GL.Vertex(p3);
+            P4  =  new new  Vector3 ( theRect . X  -  theSide , windowRect . height  - ( theRect . yMax  +  theSide ), 0 );
+            GL . PushMatrix (); // Save the current Matirx
+            lineMaterial . SetColor ( " _Color " , color );
+            lineMaterial . SetPass ( 0 ); // Refresh the current material
+            GL . LoadPixelMatrix (); // Set pixelMatrix
+            GL . Begin ( GL . LINES );
+            // ===1
+            GL . Vertex ( p1 );
+            GL . Vertex ( p2 );
+            // ===2
+            if ( flag ) {
+                GL . Vertex ( p2 );
+                GL . Vertex ( p3 );
             }
-            //===3
-            GL.Vertex(p3);
-            GL.Vertex(p4);
-            //===4
-            GL.Vertex(p4);
-            GL.Vertex(p1);
+            // ===3
+            GL . Vertex ( p3 );
+            GL . Vertex ( p4 );
+            // ===4
+            GL . Vertex ( p4 );
+            GL . Vertex ( p1 );
 
-            GL.End();
-            GL.PopMatrix();//读取之前的Matrix
+            GL . End ();
+            GL . PopMatrix (); // Read the previous Matrix
         }
     }
-    /// <summary>
-    /// 算法 
-    /// 记录算法-Start end
-    /// 施加对象 GetRect和子级Layout
-    /// </summary>
-    public class MyGUILayout
+    /// < summary >
+    /// Algorithm
+    /// Recording algorithm-Start end
+    /// Apply object GetRect and child Layout
+    /// </ summary >
+    public  class  MyGUILayout
     {
-        private int topline = 20;
-        private int leftAndRight = 10;
-        private Rect nowParentRect;
+        private  int  topline  =  20 ;
+        private  int  leftAndRight  =  10 ;
+        private  Rect  nowParentRect ;
 
-        private int nowPositionY=0;
-        private int nowPositionX=0;
-        private int nowLayerHeight = 0;
+        private  int  nowPositionY = 0 ;
+        private  int  nowPositionX = 0 ;
+        private  int  nowLayerHeight  =  0 ;
 
-        public MyGUILayout(Rect parentRect) 
+        public  MyGUILayout ( Rect  parentRect )
         {
-            SetParentRect(parentRect);
+            SetParentRect ( parentRect );
         }
-        public MyGUILayout SetLeftAndRight(int leftAndRight)
+        public  MyGUILayout  SetLeftAndRight ( int  leftAndRight )
         {
-            this.leftAndRight = leftAndRight;
-            return this;
+            this . leftAndRight  =  leftAndRight ;
+            return  this ;
         }
-        public MyGUILayout SetTopLine(int topline)
+        public  MyGUILayout  SetTopLine ( int  topline )
         {
-            this.topline = topline;
-            return this;
+            this . topline  =  topline ;
+            return  this ;
         }
 
-        public MyGUILayout SetParentRect(Rect parentRect) 
+        public  MyGUILayout  SetParentRect ( Rect  parentRect )
         {
-            nowParentRect = parentRect;
-            nowPositionY = (int)(topline+parentRect.y);
-            nowPositionX = 0;
-            return this;
+            nowParentRect  =  parentRect ;
+            nowPositionY  = ( int )( topline + parentRect . y );
+            nowPositionX  =  0 ;
+            return  this ;
         }
-        /// <summary>
+        /// < summary >
         /// 
-        /// </summary>
-        /// <param name="sizeScale">相对于父范围宽度的比例</param>
-        /// <returns></returns>
-        public MyGUILayout MoveNextRow(float sizeScale,int yline=3) 
+        /// </ summary >
+        /// < param  name = " sizeScale " > Ratio relative to the width of the parent range</ param >
+        /// < returns ></ returns >
+        public  MyGUILayout  MoveNextRow ( float  sizeScale , int  yline = 3 )
         {
-            nowPositionX = leftAndRight;
-            nowPositionY += nowLayerHeight + yline;
-            nowLayerHeight = (int)((nowParentRect.width-2*leftAndRight) * sizeScale);
-            return this;
+            nowPositionX  =  leftAndRight ;
+            nowPositionY  +=  nowLayerHeight  +  yline ;
+            nowLayerHeight  = ( int )(( nowParentRect . width - 2 * leftAndRight ) *  sizeScale );
+            return  this ;
         }
-        public MyGUILayout Start(float sizeScale)
+        public  MyGUILayout  Start ( float  sizeScale )
         {
-            nowLayerHeight = (int)((nowParentRect.width - 2 * leftAndRight) * sizeScale);
-            nowPositionY = (int)(topline + nowParentRect.y);
-            nowPositionX = leftAndRight;
-            return this;
+            nowLayerHeight  = ( int )(( nowParentRect . width  -  2  *  leftAndRight ) *  sizeScale );
+            nowPositionY  = ( int )( topline  +  nowParentRect . y );
+            nowPositionX  =  leftAndRight ;
+            return  this ;
         }
 
-        /// <summary>
+        /// < summary >
         /// 
-        /// </summary>
-        /// <param name="sizeScale">相对于父范围宽度的比例 0=本行剩余全部</param>
-        /// <param name="leftLine">左边距</param>
-        /// <returns></returns>
-        public Rect MoveNext(float sizeScale = 0,int leftLine=0)
+        /// </ summary >
+        /// < param  name = " sizeScale " > Ratio relative to the width of the parent range 0=All the rest of this line</ param >
+        /// < param  name = " leftLine " >Left margin</ param >
+        /// < returns ></ returns >
+        public  Rect  MoveNext ( float  sizeScale  =  0 , int  leftLine = 0 )
         {
-            nowPositionX += leftLine;
-            float width = (sizeScale == 0) ? (nowParentRect.width - nowPositionX - leftAndRight - leftLine) : (sizeScale * (nowParentRect.width - 2 * leftAndRight));
-            Rect ansRect = new Rect(nowPositionX,nowPositionY, width, nowLayerHeight);
-            //QTools.QTool.DebugLog($"x:{nowPositionX},y:{nowPositionY},width:{width},heigh:{nowLayerHeight}");
-            nowPositionX += (int)width;
-            return ansRect;
+            nowPositionX  +=  leftLine ;
+            float  width  = ( sizeScale  ==  0 ) ? ( nowParentRect . width  -  nowPositionX  -  leftAndRight  -  leftLine ) : ( sizeScale  * ( nowParentRect . width  -  2  *  leftAndRight ));
+            Rect  ansRect  =  new  Rect ( nowPositionX , nowPositionY , width , nowLayerHeight );
+            // QTools.QTool.DebugLog($"x:{nowPositionX},y:{nowPositionY},width:{width},heigh:{nowLayerHeight}");
+            nowPositionX  += ( int ) width ;
+            return  ansRect ;
         }
-        public Rect GetUsedRect()
+        public  Rect  GetUsedRect ()
         {
-            Rect ansRect = new Rect();
-            ansRect.y = nowParentRect.y;
-            ansRect.x = 0;
-            if (nowPositionX > leftAndRight) {
-                ansRect.height = nowPositionY + nowLayerHeight;
+            Rect  ansRect  =  new  Rect ();
+            ansRect . y  =  nowParentRect . y ;
+            ansRect . x  =  0 ;
+            if ( nowPositionX  >  leftAndRight ) {
+                ansRect . height  =  nowPositionY  +  nowLayerHeight ;
 
             }
             else {
-                ansRect.height = nowPositionY;
+                ansRect . height  =  nowPositionY ;
             }
-            ansRect.width = nowParentRect.width;
-            return ansRect;
+            ansRect . width  =  nowParentRect . width ;
+            return  ansRect ;
         }
-        public Rect GetRemainingRect()
+        public  Rect  GetRemainingRect ()
         {
-            Rect ansRect = new Rect();
-            if (nowPositionX > leftAndRight) {
-                ansRect.y = nowPositionY + nowLayerHeight;
+            Rect  ansRect  =  new  Rect ();
+            if ( nowPositionX  >  leftAndRight ) {
+                ansRect . y  =  nowPositionY  +  nowLayerHeight ;
 
             }
             else {
-                ansRect.y = nowPositionY;
+                ansRect . y  =  nowPositionY ;
             }
-            ansRect.x = 0;
-            ansRect.width = nowParentRect.width;
-            ansRect.height = nowParentRect.height - ansRect.y;
-            return ansRect;
+            ansRect . x  =  0 ;
+            ansRect . width  =  nowParentRect . width ;
+            ansRect . height  =  nowParentRect . height  -  ansRect . y ;
+            return  ansRect ;
         }
 
-        public int GetSize(float sizeScale, int num = 0,int yline=3) {
-            return (int)((sizeScale * (nowParentRect.width - 2 * leftAndRight) + yline) * num);
+        public  int  GetSize ( float  sizeScale , int  num  =  0 , int  yline = 3 ) {
+            return ( int )(( sizeScale  * ( nowParentRect . width  -  2  *  leftAndRight ) +  yline ) *  num );
         }
 
     }
